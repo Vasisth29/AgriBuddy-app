@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgriBuddy - Crop Recommendation</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+    <style>
+        body { background-color: #f0f2f5; font-family: sans-serif; }
+        .container { max-width: 900px; }
+        .card { border: none; border-radius: 15px; box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1); }
+        .card-title { color: #2c5e2e; font-weight: bold; }
+        .recommendation-img { width: 100%; height: 180px; object-fit: cover; border-radius: 15px 15px 0 0; }
+        .btn-primary { background-color: #4CAF50; border: none; padding: 12px; font-size: 1.1rem; }
+        .btn-primary:hover { background-color: #45a049; }
+        .form-label b { color: #333; }
+        #india-map { width: 100%; height: 450px; margin-bottom: 2rem; }
+    </style>
+</head>
+<body>
+    <div class="container my-5">
+        <div class="card p-4 p-md-5">
+            <h1 class="text-center mb-4">🌱 AgriBuddy Crop Recommendation</h1>
+            
+            <p class="text-center text-muted">Click on a state on the map or select from the dropdown below.</p>
+            <div id="india-map"></div>
+            
+            <form method="POST" enctype="multipart/form-data">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="image" class="form-label"><b>1. Upload Soil Image</b></label>
+                        <input type="file" name="image" id="image" class="form-control" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="state-dropdown" class="form-label"><b>2. Select Your State</b></label>
+                        <select name="state" id="state-dropdown" class="form-select" required>
+                            <option value="" disabled {% if not selected_state %}selected{% endif %}>-- Select Your State / अपना राज्य चुनें --</option>
+                            {% for state in states %}
+                            <option value="{{ state.english }}" {% if selected_state == state.english %}selected{% endif %}>
+                                {{ state.english }} / {{ state.hindi }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                <div class="d-grid mt-4">
+                    <button type="submit" class="btn btn-primary btn-lg">Get Recommendation</button>
+                </div>
+            </form>
+        </div>
+
+        {% if result and recommendations %}
+        <div class="card mt-5 p-4 p-md-5">
+            <h2 class="text-center mb-4">Your Results</h2>
+            <div class="alert alert-success">
+                <p class="mb-1"><strong>Predicted Soil Type:</strong> {{ result.soil_type }}</p>
+                <p class="mb-0"><strong>State:</strong> {{ result.state }}</p>
+            </div>
+            <h3 class="mt-4">Top Crop Recommendations:</h3>
+            <div class="row mt-3">
+                {% for crop in recommendations %}
+                <div class="col-lg-4 col-md-6 mb-4">
+                    <div class="card h-100">
+                        <img src="{{ url_for('static', filename='crop_images/' + crop.label + '.jpg') }}" class="recommendation-img" alt="{{ crop.label.title() }}" onerror="this.src='{{ url_for('static', filename='crop_images/default.jpg') }}';">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ crop.label.title() }} / {{ crop.hindi_name }}</h5>
+                            <p class="card-text small">
+                                <strong>Best Season: {{ crop.season }}</strong><br>
+                                <strong>Ideal Conditions:</strong><br>
+                                Temp: {{ "%.1f"|format(crop.temperature) }}°C <br>
+                                Rain: {{ "%.1f"|format(crop.rainfall) }}mm <br>
+                                pH: {{ "%.1f"|format(crop.ph) }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <script type="text/javascript">
+google.charts.load('current', { packages:['geochart'] });
+
+function initChart() {
+    google.charts.setOnLoadCallback(drawMap);
+}
+
+function drawMap() {
+    var data = google.visualization.arrayToDataTable([
+        ['State', 'Value'],
+    ]);
+
+    var options = {
+        resolution: 'provinces',
+        region: 'IN',
+        backgroundColor: '#f0f2f5',
+        datalessRegionColor: '#a5d6a7',
+        colorAxis: { colors: ['#2e7d32'] },
+        tooltip: { trigger: 'focus' },
+        legend: 'none'
+    };
+
+    var chart = new google.visualization.GeoChart(document.getElementById('india-map'));
+
+    google.visualization.events.addListener(chart, 'regionClick', function(eventData) {
+        var regionCode = eventData.region; 
+        const stateNameMap = {
+            'IN-AP': 'Andhra Pradesh', 'IN-AR': 'Arunachal Pradesh', 'IN-AS': 'Assam',
+            'IN-BR': 'Bihar', 'IN-CT': 'Chhattisgarh', 'IN-GA': 'Goa', 'IN-GJ': 'Gujarat',
+            'IN-HR': 'Haryana', 'IN-HP': 'Himachal Pradesh', 'IN-JH': 'Jharkhand',
+            'IN-KA': 'Karnataka', 'IN-KL': 'Kerala', 'IN-MP': 'Madhya Pradesh',
+            'IN-MH': 'Maharashtra', 'IN-MN': 'Manipur', 'IN-ML': 'Meghalaya',
+            'IN-MZ': 'Mizoram', 'IN-NL': 'Nagaland', 'IN-OR': 'Odisha', 'IN-PB': 'Punjab',
+            'IN-RJ': 'Rajasthan', 'IN-SK': 'Sikkim', 'IN-TN': 'Tamil Nadu', 'IN-TS': 'Telangana',
+            'IN-TR': 'Tripura', 'IN-UT': 'Uttarakhand', 'IN-UP': 'Uttar Pradesh',
+            'IN-WB': 'West Bengal', 'IN-AN': 'Andaman and Nicobar Islands', 'IN-CH': 'Chandigarh',
+            'IN-DN': 'Dadra and Nagar Haveli and Daman and Diu', 'IN-DL': 'Delhi',
+            'IN-JK': 'Jammu and Kashmir', 'IN-LA': 'Ladakh', 'IN-LD': 'Lakshadweep',
+            'IN-PY': 'Puducherry'
+        };
+
+        const stateName = stateNameMap[regionCode];
+        if (stateName) {
+            document.getElementById('state-dropdown').value = stateName;
+
+            var highlightData = google.visualization.arrayToDataTable([
+                ['State', 'Value'],
+                [regionCode, 1] 
+            ]);
+            chart.draw(highlightData, options);
+        }
+    });
+
+    chart.draw(data, options);
+}
+
+// 🔑 Ensure it runs every time the DOM reloads
+document.addEventListener("DOMContentLoaded", initChart);
+</script>
+
+
+</body>
+</html>

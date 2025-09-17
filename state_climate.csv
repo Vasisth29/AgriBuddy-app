@@ -1,0 +1,37 @@
+State,temp_min,temp_max,humidity_min,humidity_max,rainfall_min,rainfall_max
+Andaman and Nicobar Islands,24,32,70,90,150,450
+Andhra Pradesh,22,40,50,85,50,250
+Arunachal Pradesh,15,28,60,90,180,500
+Assam,20,33,70,95,150,450
+Bihar,18,42,45,88,80,220
+Chandigarh,15,40,35,85,60,250
+Chhattisgarh,20,42,40,85,100,250
+Dadra and Nagar Haveli and Daman and Diu,22,36,60,90,150,500
+Delhi,15,44,30,80,50,200
+Goa,22,34,70,95,200,600
+Gujarat,22,42,40,85,60,300
+Haryana,16,44,30,80,40,180
+Himachal Pradesh,10,30,40,75,50,250
+Jammu and Kashmir,10,32,50,85,60,250
+Jharkhand,18,40,45,88,90,220
+Karnataka,20,36,50,90,50,500
+Kerala,23,34,75,98,150,500
+Ladakh,5,25,15,55,10,40
+Lakshadweep,25,32,75,90,120,300
+Madhya Pradesh,20,42,35,85,80,250
+Maharashtra,20,38,40,88,70,400
+Manipur,15,30,65,95,100,350
+Meghalaya,15,25,80,98,250,1000
+Mizoram,16,30,70,95,150,400
+Nagaland,15,28,65,95,100,350
+Odisha,22,38,55,90,120,300
+Puducherry,24,36,65,88,90,350
+Punjab,16,43,35,80,50,200
+Rajasthan,24,45,25,75,30,200
+Sikkim,10,25,70,90,200,500
+Tamil Nadu,23,37,60,85,70,350
+Telangana,22,41,40,85,80,250
+Tripura,21,34,75,95,150,350
+Uttar Pradesh,20,43,40,85,70,250
+Uttarakhand,15,32,50,85,100,350
+West Bengal,22,36,60,95,120,400
